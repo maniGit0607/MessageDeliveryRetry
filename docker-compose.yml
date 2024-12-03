@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    volumes:
+      - ./init/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./init/definitions.json:/etc/rabbitmq/definitions.json:ro
+    environment:
+      RABBITMQ_DEFAULT_USER: skylo
+      RABBITMQ_DEFAULT_PASS: skylo
+    ports:
+      - "5672:5672" # RabbitMQ communication port
+      - "15672:15672" # Management UI port
+    command: >
+      rabbitmq-server &&
+      rabbitmqctl add_vhost / &&
+      rabbitmqctl set_permissions -p / guest ".*" ".*" ".*"
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
